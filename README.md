@@ -1,27 +1,21 @@
 # 🔥 SmartFW: Smart Firewall for Linux Servers
 
-**SmartFW** is an intelligent firewall system for Ubuntu/Linux servers that combines **deterministic iptables rules** with **machine learning** to block suspicious IPs and anomalous traffic patterns in real time.
+**SmartFW** is an intelligent firewall system for Ubuntu/Linux servers that combines deterministic `iptables` rules with machine learning to block suspicious IPs and anomalous traffic patterns in real time.
 
 It is lightweight, modular, and easy to deploy.
 
----
-
 ## ✨ Features
 
-- ✅ **CLI Control** — Easily enable/disable, block/unblock IPs, and view status.
-- ✅ **Rule-Based Protection** — Uses `iptables` for deterministic filtering.
-- ✅ **Packet Sniffer** — Captures live traffic via `scapy`.
-- ✅ **ML-Based Anomaly Detection** — Built-in support for models like Isolation Forest.
-- ✅ **Online Learning Support** — Updates the model live as traffic is logged.
-- ✅ **Systemd Integration** — Runs as a background Linux service.
-
----
+- ✅ CLI Control — Easily enable/disable, block/unblock IPs, and view status  
+- ✅ Rule-Based Protection — Uses `iptables` for deterministic filtering  
+- ✅ Packet Sniffer — Captures live traffic via Scapy  
+- ✅ ML-Based Anomaly Detection — Uses models like Isolation Forest  
+- ✅ Online Learning Support — Model updates itself live  
+- ✅ Systemd Integration — Persistent background daemon  
 
 ## 🏗️ Architecture
 
-lua
-Copy
-Edit
+```
             +------------------------+
             |      CLI Interface     |
             +-----------+------------+
@@ -34,105 +28,117 @@ Edit
     +-------------------+--------------------+
     |                                        |
     v                                        v
-+---------------+ +--------------------------+
-| Rule Enforcer | | Packet Interceptor |
-| (iptables) | <-------------- | (scapy sniffer) |
-+---------------+ alerts +--------------------------+
-|
-+----------v-----------+
-| Feature Extractor |
-+----------+-----------+
-|
-+----------v-----------+
-| ML Anomaly Detector |
-+----------+-----------+
-|
-+----------v-----------+
-| Real-time Action Hook |
-+-----------------------+
-
-yaml
-Copy
-Edit
-
----
++---------------+                  +--------------------------+
+| Rule Enforcer |                  |   Packet Interceptor     |
+| (iptables)    | <--------------  |     (Scapy sniffer)      |
++---------------+     alerts       +--------------------------+
+                                                |
+                                     +----------v-----------+
+                                     |  Feature Extractor    |
+                                     +----------+-----------+
+                                                |
+                                     +----------v-----------+
+                                     | ML Anomaly Detector   |
+                                     +----------+-----------+
+                                                |
+                                     +----------v-----------+
+                                     | Real-time Action Hook |
+                                     +-----------------------+
+```
 
 ## ⚙️ Installation
 
 ### 🧰 Prerequisites
 
 - Python 3.8+
-- `iptables` (usually pre-installed on Linux)
-- Python packages: `scapy`, `sklearn`, `joblib`
+- `iptables` (pre-installed on most Linux distros)
+- Python packages: `scapy`, `sklearn`, `joblib`, `river` (optional for online learning)
 
-### 📦 Install Script
+### 📦 Install
 
 ```bash
-cd smartfw
-bash scripts/install.sh
+cd smartfw  
+bash scripts/install.sh  
+```
+
 Start the service:
 
-bash
-Copy
-Edit
-sudo systemctl start smartfw
-🛡️ CLI Usage
-bash
-Copy
-Edit
-smartfw enable           # Enable the firewall
-smartfw disable          # Disable and flush rules
-smartfw block <ip>       # Block a specific IP
-smartfw unblock <ip>     # Unblock an IP
-smartfw status           # List current firewall rules
-smartfw help             # Show help
-📁 Logs
-logs/traffic.log — All intercepted traffic (features only)
+```bash
+sudo systemctl start smartfw  
+```
 
-logs/alerts.log — Anomalies and blocked actions
+To auto-start on boot:
 
-🤖 ML Training and Online Learning
-Initial Offline Training
-bash
-Copy
-Edit
-python3 core/ml_agent/train.py
-Online Learning Loop (Example)
-python
-Copy
-Edit
-# Example snippet inside train.py
-def update_model_with_new_log():
-    ...
-    model.partial_fit(new_data)  # Use an online-capable model
-💡 For full online learning, consider using libraries like river or models like SGDClassifier.
+```bash
+sudo systemctl enable smartfw  
+```
 
-🔧 Systemd Management
-bash
-Copy
-Edit
-sudo systemctl enable smartfw     # Auto-start on boot
-sudo systemctl start smartfw      # Start service
-sudo systemctl stop smartfw       # Stop service
-🧪 Testing
-Run all unit tests:
+## 🛡️ CLI Usage
 
-bash
-Copy
-Edit
-cd test/unit_tests
-python3 -m unittest discover
-🤝 Contributing
-Pull requests, bug reports, and feature suggestions are welcome!
+```bash
+smartfw enable           # Enable the firewall  
+smartfw disable          # Disable and flush rules  
+smartfw block <ip>       # Block a specific IP  
+smartfw unblock <ip>     # Unblock an IP  
+smartfw status           # List current firewall rules  
+smartfw help             # Show help  
+```
 
-Improve detection logic
+## 📁 Logs
 
-Add new models or update training loop
+- `logs/traffic.log` — All intercepted traffic (features only)  
+- `logs/alerts.log` — Anomalies and blocked actions  
 
-Integrate with external monitoring systems
+## 🤖 ML Training and Online Learning
 
-Author - Pratik Anand
-Contact @ pratik.csdev@gmail.com
+### Offline Training (Initial)
 
-📜 License
-MIT License — see LICENSE for full terms.
+```bash
+python3 core/ml_agent/train.py  
+```
+
+### Online Learning Loop (Example)
+
+```python
+# Example inside train.py  
+def update_model_with_new_log():  
+    new_data = load_recent_logs("logs/traffic.log")  
+    model.partial_fit(new_data)  # Use online-capable model
+```
+
+💡 For live model updates, use libraries like `river` or `SGDClassifier` from `sklearn.linear_model`.
+
+## 🔧 Systemd Integration
+
+```bash
+sudo systemctl enable smartfw     # Auto-start on boot  
+sudo systemctl start smartfw      # Start the daemon  
+sudo systemctl stop smartfw       # Stop the daemon  
+```
+
+## 🧪 Testing
+
+```bash
+cd test/unit_tests  
+python3 -m unittest discover  
+```
+
+## 🤝 Contributing
+
+Pull requests and issues are welcome!
+
+Ideas to contribute:
+- Enhance detection logic
+- Add more ML models or hybrid detectors
+- Integrate with monitoring dashboards
+- Add alert hooks (email, webhook, etc.)
+
+## 👤 Author
+
+**Pratik Anand**  
+📧 Email: pratik.csdev@gmail.com  
+🌐 GitHub: [user-pratik](https://github.com/user-pratik)
+
+## 📜 License
+
+MIT License — see `LICENSE` file for full terms.
