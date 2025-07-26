@@ -1,122 +1,138 @@
-SmartFW: Smart Firewall for Linux Servers
+# 🔥 SmartFW: Smart Firewall for Linux Servers
 
-SmartFW is an intelligent firewall system for Ubuntu/Linux servers that combines deterministic iptables rules with machine learning to block suspicious IPs and anomalous traffic patterns in real time.
+**SmartFW** is an intelligent firewall system for Ubuntu/Linux servers that combines **deterministic iptables rules** with **machine learning** to block suspicious IPs and anomalous traffic patterns in real time.
 
-It is built to be lightweight, modular, and easy to deploy.
+It is lightweight, modular, and easy to deploy.
 
-Features
+---
 
-✅ CLI control for enabling/disabling, blocking IPs, viewing status
+## ✨ Features
 
-✅ Deterministic rule-based blocking using iptables
+- ✅ **CLI Control** — Easily enable/disable, block/unblock IPs, and view status.
+- ✅ **Rule-Based Protection** — Uses `iptables` for deterministic filtering.
+- ✅ **Packet Sniffer** — Captures live traffic via `scapy`.
+- ✅ **ML-Based Anomaly Detection** — Built-in support for models like Isolation Forest.
+- ✅ **Online Learning Support** — Updates the model live as traffic is logged.
+- ✅ **Systemd Integration** — Runs as a background Linux service.
 
-✅ Packet sniffer for logging raw traffic
+---
 
-✅ ML-based anomaly detection using Isolation Forest
+## 🏗️ Architecture
 
-✅ Online learning support
+lua
+Copy
+Edit
+            +------------------------+
+            |      CLI Interface     |
+            +-----------+------------+
+                        |
+                        v
+            +-----------+------------+
+            |      Core Controller   | <--- future HTTP or socket API
+            +-----------+------------+
+                        |
+    +-------------------+--------------------+
+    |                                        |
+    v                                        v
++---------------+ +--------------------------+
+| Rule Enforcer | | Packet Interceptor |
+| (iptables) | <-------------- | (scapy sniffer) |
++---------------+ alerts +--------------------------+
+|
++----------v-----------+
+| Feature Extractor |
++----------+-----------+
+|
++----------v-----------+
+| ML Anomaly Detector |
++----------+-----------+
+|
++----------v-----------+
+| Real-time Action Hook |
++-----------------------+
 
-✅ Systemd integration for persistent background service
+yaml
+Copy
+Edit
 
-Architecture
+---
 
-                +------------------------+
-                |      CLI Interface     |
-                +-----------+------------+
-                            |
-                            v
-                +-----------+------------+
-                |      Core Controller   | <--- future HTTP or socket API
-                +-----------+------------+
-                            |
-        +-------------------+--------------------+
-        |                                        |
-        v                                        v
-+---------------+                  +--------------------------+
-| Rule Enforcer |                  |   Packet Interceptor     |
-| (iptables)    | <--------------  | (scapy sniffer)          |
-+---------------+     alerts       +--------------------------+
-                                                |
-                                     +----------v-----------+
-                                     |  Feature Extractor    |
-                                     +----------+-----------+
-                                                |
-                                     +----------v-----------+
-                                     |   ML Anomaly Detector |
-                                     +----------+-----------+
-                                                |
-                                     +----------v-----------+
-                                     | Real-time Action Hook |
-                                     +-----------------------+
+## ⚙️ Installation
 
-Installation
+### 🧰 Prerequisites
 
-Prerequisites
+- Python 3.8+
+- `iptables` (usually pre-installed on Linux)
+- Python packages: `scapy`, `sklearn`, `joblib`
 
-Python 3.8+
+### 📦 Install Script
 
-iptables (already present on most Linux systems)
-
-scapy, sklearn, joblib (install via pip)
-
-Install Script
-
+```bash
 cd smartfw
 bash scripts/install.sh
+Start the service:
 
-Then start the service:
-
+bash
+Copy
+Edit
 sudo systemctl start smartfw
+🛡️ CLI Usage
+bash
+Copy
+Edit
+smartfw enable           # Enable the firewall
+smartfw disable          # Disable and flush rules
+smartfw block <ip>       # Block a specific IP
+smartfw unblock <ip>     # Unblock an IP
+smartfw status           # List current firewall rules
+smartfw help             # Show help
+📁 Logs
+logs/traffic.log — All intercepted traffic (features only)
 
-CLI Usage
+logs/alerts.log — Anomalies and blocked actions
 
-smartfw enable             # Enable the firewall
-smartfw disable            # Disable and flush rules
-smartfw block <ip>         # Block a specific IP
-smartfw unblock <ip>       # Unblock an IP
-smartfw status             # List current firewall rules
-smartfw help               # Show help
-
-Logs
-
-logs/traffic.log - All intercepted traffic (features only)
-
-logs/alerts.log - Anomalies and blocked actions
-
-ML Training and Online Learning
-
-Initial training (offline):
-
+🤖 ML Training and Online Learning
+Initial Offline Training
+bash
+Copy
+Edit
 python3 core/ml_agent/train.py
-
-Online learning (continuous updates):
-
-# core/ml_agent/train.py (example addition)
+Online Learning Loop (Example)
+python
+Copy
+Edit
+# Example snippet inside train.py
 def update_model_with_new_log():
-    ... # Load new logs since last training
-    model.partial_fit(new_data)  # Assumes online-capable model (e.g. SGDClassifier)
+    ...
+    model.partial_fit(new_data)  # Use an online-capable model
+💡 For full online learning, consider using libraries like river or models like SGDClassifier.
 
-For full online learning support, replace IsolationForest with an incremental learner like River, SGDClassifier, etc.
+🔧 Systemd Management
+bash
+Copy
+Edit
+sudo systemctl enable smartfw     # Auto-start on boot
+sudo systemctl start smartfw      # Start service
+sudo systemctl stop smartfw       # Stop service
+🧪 Testing
+Run all unit tests:
 
-Systemd Management
-
-sudo systemctl enable smartfw
-sudo systemctl start smartfw
-sudo systemctl stop smartfw
-
-Testing
-
-To run unit tests:
-
+bash
+Copy
+Edit
 cd test/unit_tests
 python3 -m unittest discover
+🤝 Contributing
+Pull requests, bug reports, and feature suggestions are welcome!
 
-Contributing
+Improve detection logic
 
-PRs, issues, and discussions are welcome. If you have ideas for improving detection, model tuning, or integration with other tools, feel free to contribute!
+Add new models or update training loop
 
-License
+Integrate with external monitoring systems
 
-MIT License. See LICENSE file for details.
+Author - Pratik Anand
+Contact @ pratik.csdev@gmail.com
 
-
+📜 License
+MIT License — see LICENSE for full terms.
