@@ -1,0 +1,12 @@
+[Unit]
+Description=Smart Firewall Daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 core/packet_interceptor/sniffer.py
+WorkingDirectory=/path/to/smartfw
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+.env/
+env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer backup
+*.bak
+*.old
+
+# Package distribution
+dist/
+build/
+*.egg-info/
+
+# System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# VS Code
+.vscode/
+
+# Model files
+*.pkl
+*.joblib
+
+# Configs that might contain secrets
+config/smartfw.conf
+config/model_config.json
+
+# Systemd compiled files
+*.service~
+
+# Test outputs
+test/__pycache__/
+test/unit_tests/__pycache__/
+test/integration/__pycache__/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
